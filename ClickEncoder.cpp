@@ -86,8 +86,10 @@ void ClickEncoder::service(void)
 
   if (pinA >= 0 && pinA >= 0) {
   if (accelerationEnabled) { // decelerate every tick
-    acceleration -= ENC_ACCEL_DEC;
-    if (acceleration & 0x8000) { // handle overflow of MSB is set
+    if(acceleration >= ENC_ACCEL_DEC){
+      acceleration -= ENC_ACCEL_DEC;
+    }
+    else{
       acceleration = 0;
     }
   }
