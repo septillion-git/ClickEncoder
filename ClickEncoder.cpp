@@ -85,67 +85,67 @@ void ClickEncoder::service(void)
   bool moved = false;
 
   if (pinA >= 0 && pinA >= 0) {
-  if (accelerationEnabled) { // decelerate every tick
-    if(acceleration >= ENC_ACCEL_DEC){
-      acceleration -= ENC_ACCEL_DEC;
+    if (accelerationEnabled) { // decelerate every tick
+      if(acceleration >= ENC_ACCEL_DEC){
+        acceleration -= ENC_ACCEL_DEC;
+      }
+      else{
+        acceleration = 0;
+      }
     }
-    else{
-      acceleration = 0;
-    }
-  }
 
 #if ENC_DECODER == ENC_FLAKY
-  last = (last << 2) & 0x0F;
+    last = (last << 2) & 0x0F;
 
-  if (digitalRead(pinA) == pinsActive) {
-    last |= 2;
-  }
+    if (digitalRead(pinA) == pinsActive) {
+      last |= 2;
+    }
 
-  if (digitalRead(pinB) == pinsActive) {
-    last |= 1;
-  }
+    if (digitalRead(pinB) == pinsActive) {
+      last |= 1;
+    }
 
-  int8_t tbl = pgm_read_byte(&table[last]); 
-  if (tbl) {
-    delta += tbl;
-    moved = true;
-  }
+    int8_t tbl = pgm_read_byte(&table[last]); 
+    if (tbl) {
+      delta += tbl;
+      moved = true;
+    }
 #elif ENC_DECODER == ENC_NORMAL
-  int8_t curr = 0;
+    int8_t curr = 0;
 
-  if (digitalRead(pinA) == pinsActive) {
-    curr = 3;
-  }
+    if (digitalRead(pinA) == pinsActive) {
+      curr = 3;
+    }
 
-  if (digitalRead(pinB) == pinsActive) {
-    curr ^= 1;
-  }
-  
-  int8_t diff = last - curr;
+    if (digitalRead(pinB) == pinsActive) {
+      curr ^= 1;
+    }
+    
+    int8_t diff = last - curr;
 
-  if (diff & 1) {            // bit 0 = step
-    last = curr;
-    delta += (diff & 2) - 1; // bit 1 = direction (+/-)
-    moved = true;    
-  }
+    if (diff & 1) {            // bit 0 = step
+      last = curr;
+      delta += (diff & 2) - 1; // bit 1 = direction (+/-)
+      moved = true;    
+    }
 #else
 # error "Error: define ENC_DECODER to ENC_NORMAL or ENC_FLAKY"
 #endif
 
-  if (accelerationEnabled && moved) {
-    // increment accelerator if encoder has been moved
-    if (acceleration <= (ENC_ACCEL_TOP - ENC_ACCEL_INC)) {
-      acceleration += ENC_ACCEL_INC;
+    if (accelerationEnabled && moved) {
+      // increment accelerator if encoder has been moved
+      if (acceleration <= (ENC_ACCEL_TOP - ENC_ACCEL_INC)) {
+        acceleration += ENC_ACCEL_INC;
+      }
     }
   }
-}
   // handle button
   //
 #ifndef WITHOUT_BUTTON
   unsigned long currentMillis = millis();
   if ((pinBTN > 0 || (pinBTN == 0 && buttonOnPinZeroEnabled))        // check button only, if a pin has been provided
       && ((currentMillis - lastButtonCheck) >= ENC_BUTTONINTERVAL))            // checking button is sufficient every 10-30ms
-  { 
+  {
     lastButtonCheck = currentMillis;
     
     if (digitalRead(pinBTN) == pinsActive) { // key is down
